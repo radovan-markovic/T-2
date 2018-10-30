@@ -45,5 +45,21 @@ class AdminController extends Controller
 
         return redirect('/admin');
     }
+
+    public function activateUser($user_id)
+    {
+        $user = User::find($user_id);
+    
+        if($user->active_user == true){
+            $user->active_user = false;
+        }
+        else{
+            $user->active_user = true;
+        }
+
+        $user->save();
+
+        return redirect('/admin');
+    }
     
 }

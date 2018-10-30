@@ -23,15 +23,15 @@
                     
                     <td>
                     @if ($user->active_user == 1)
-                        {!! Form::open(array('method' => 'patch', 'action' => ['AdminController@update', $user->id])) !!}
+                        {!! Form::open(array('method' => 'patch', 'action' => ['AdminController@activateUser', $user->id])) !!}
                             <div>
                             {!! Form::submit('Deactivate User', ['class' => 'btn btn-danger']) !!}
                             </div>
                         {!! Form::close() !!}
                     @else
-                        {!! Form::open(array('method' => 'patch', 'action' => ['AdminController@update', $user->id])) !!}
+                    {!! Form::open(array('method' => 'patch', 'action' => ['AdminController@activateUser', $user->id])) !!}
                             <div>
-                            {!! Form::submit('Activate User', ['class' => 'btn btn-primary']) !!}
+                            {!! Form::submit('Activate User', ['class' => 'btn btn-success']) !!}
                             </div>
                         {!! Form::close() !!}
                     @endif
