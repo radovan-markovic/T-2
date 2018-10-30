@@ -28,4 +28,22 @@ class AdminController extends Controller
 
         return view('admin', compact('users'));
     }
+
+    //Update user activity
+    public function update($user_id)
+    {
+        $user = User::find($user_id);
+    
+        if($user->active_user == true){
+            $user->active_user = false;
+        }
+        else{
+            $user->active_user = true;
+        }
+
+        $user->save();
+
+        return redirect('/admin');
+    }
+    
 }

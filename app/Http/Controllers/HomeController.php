@@ -26,10 +26,10 @@ class HomeController extends Controller
     public function index()
     {   
         $user = Auth::user();
-
+        
         if ($user->isAdmin())
         {
-            return redirect()->route('admin');
+            return redirect('/admin');
         }
 
         return view('home');

@@ -41,7 +41,7 @@ class LoginController extends Controller
         
         if ($user->isAdmin()) 
         {
-            return redirect()->route('admin');
+            return redirect('/admin');
         }
     
         return redirect('/home');
@@ -66,7 +66,6 @@ class LoginController extends Controller
     /**
      * Obtain the user information from Google.
      *
-     * @return Response
      */
     public function handleProviderCallback($provider)
     {

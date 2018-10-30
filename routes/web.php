@@ -20,7 +20,7 @@ Route::get('/', function () {
     $user = Auth::user();
     if ($user->isAdmin())
         {
-            return view('admin');
+            return redirect('/admin');
         }
         return view('home'); 
            
@@ -33,6 +33,9 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 
 //Admin routes
 Route::get('/admin', 'AdminController@index')->name('admin');
+Route::patch('/admin/{admin}/activateUser', 'AdminController@activateUser')->name('admin.activate');
+Route::resource('admin', 'AdminController');
+
 
 //User routes
 Route::get('/home', 'HomeController@index')->name('home');
