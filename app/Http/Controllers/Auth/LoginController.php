@@ -4,6 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\User;
+use Socialite;
+
+
 
 class LoginController extends Controller
 {
@@ -25,7 +31,21 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected function authenticated(Request $request, $user)
+    {
+    
+        if(!$user['active_user'])
+            {
+                Auth::logout();
+            }
+        
+        if ($user->isAdmin()) 
+        {
+            return redirect()->route('admin');
+        }
+    
+        return redirect('/home');
+    }
 
     /**
      * Create a new controller instance.
@@ -35,5 +55,41 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+   
+    public function redirectToProvider($provider)
+    {
+        return Socialite::driver($provider)->redirect();
+    }
+
+    /**
+     * Obtain the user information from Google.
+     *
+     * @return Response
+     */
+    public function handleProviderCallback($provider)
+    {
+        $user = Socialite::driver($provider)->stateless()->user();
+        $authUser = $this->findOrCreateUser($user, $provider);
+        Auth::login($authUser, true);
+        return redirect('/home');
+    }
+
+    public function findOrCreateUser($user, $provider)
+    {
+        
+        $authUser = User::where('provider_id', $user->id)->first();
+        if ($authUser)
+        {
+            return $authUser;
+        }
+        return User::create([
+            'name'          => $user->name,
+            'email'         => $user->email,
+            'provider'      => strtoupper($provider),
+            'provider_id'   => $user->id
+
+        ]);
     }
 }

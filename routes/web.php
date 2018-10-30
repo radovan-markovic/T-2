@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -11,6 +13,27 @@
 |
 */
 
+
+//Login routes
 Route::get('/', function () {
-    return view('welcome');
-});
+
+    $user = Auth::user();
+    if ($user->isAdmin())
+        {
+            return view('admin');
+        }
+        return view('home'); 
+           
+})->middleware('auth');
+
+Auth::routes();
+
+Route::get('auth/{provider}', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallback');
+
+//Admin routes
+Route::get('/admin', 'AdminController@index')->name('admin');
+
+//User routes
+Route::get('/home', 'HomeController@index')->name('home');
+
