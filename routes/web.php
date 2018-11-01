@@ -22,7 +22,7 @@ Route::get('/', function () {
         {
             return redirect('/admin');
         }
-        return view('home'); 
+        return redirect('/home'); 
            
 })->middleware('auth');
 
@@ -36,7 +36,15 @@ Route::get('/admin', 'AdminController@index')->name('admin');
 Route::patch('/admin/{admin}/activateUser', 'AdminController@activateUser')->name('admin.activate');
 Route::resource('admin', 'AdminController');
 
-
 //User routes
 Route::get('/home', 'HomeController@index')->name('home');
+Route::resource('home', 'HomeController');
+
+//Temperature routes
+Route::post('/temperature/getAllTemperatures', 'TemperatureController@getAllTemperatures')->name('temperature.all_temperatures');
+Route::post('/temperature/getTemperature', 'TemperatureController@getTemperature')->name('temperature.current_temp');
+Route::post('/temperature/saveTemperature', 'TemperatureController@saveTemperature')->name('temperature.save_temp');
+Route::resource('temperature', 'TemperatureController');
+
+
 

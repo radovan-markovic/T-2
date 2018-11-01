@@ -9,6 +9,7 @@
          <table class="table">
             <thead>
                 <tr>
+                    <th> Role</th>
                     <th> id</th>
                     <th> Name</th>
                     <th> email </th>
@@ -17,6 +18,7 @@
             <tbody>
                 @foreach($users as $user)
                 <tr>
+                    <td> {{$user->role->name}} </td>
                     <td> {{$user->id}} </td>
                     <td> {{$user->name}} </td>
                     <td> {{$user->email}} </td>

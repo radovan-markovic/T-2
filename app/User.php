@@ -6,6 +6,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+define("ADMIN", "administrator");
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -40,7 +42,7 @@ class User extends Authenticatable
      */
     public function isAdmin()
     {
-        if ($this->role->name == "administrator"){
+        if ($this->role->name == ADMIN){
             return true;
         }
 

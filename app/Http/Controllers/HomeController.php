@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\City;
 
 class HomeController extends Controller
 {
@@ -32,6 +32,8 @@ class HomeController extends Controller
             return redirect('/admin');
         }
 
-        return view('home');
+        $cities = City::orderBy('name','asc')->pluck('name', 'city_code')->all();
+
+        return view('home', compact('cities'));
     }
 }

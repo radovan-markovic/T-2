@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use App\Role;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -52,6 +54,7 @@ class AdminController extends Controller
     
         if($user->active_user == true){
             $user->active_user = false;
+            
         }
         else{
             $user->active_user = true;

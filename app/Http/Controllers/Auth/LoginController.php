@@ -26,26 +26,6 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected function authenticated(Request $request, $user)
-    {
-    
-        if(!$user['active_user'])
-            {
-                Auth::logout();
-            }
-        
-        if ($user->isAdmin()) 
-        {
-            return redirect('/admin');
-        }
-    
-        return redirect('/home');
-    }
 
     /**
      * Create a new controller instance.
@@ -55,6 +35,28 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+     /**
+     * Where to redirect users after login.
+     *
+     * @var string
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        
+        if(!$user['active_user'])
+            {
+                Auth::logout();
+                return redirect('/login');
+            }
+        
+        if ($user->isAdmin()) 
+        {
+            return redirect('/admin');
+        }
+    
+        return redirect('/home');
     }
 
    
@@ -71,13 +73,19 @@ class LoginController extends Controller
     {
         $user = Socialite::driver($provider)->stateless()->user();
         $authUser = $this->findOrCreateUser($user, $provider);
+
+        if(!$authUser->active_user)
+            {
+                Auth::logout();
+                return redirect('/login');
+            }
+
         Auth::login($authUser, true);
         return redirect('/home');
     }
 
     public function findOrCreateUser($user, $provider)
-    {
-        
+    {          
         $authUser = User::where('provider_id', $user->id)->first();
         if ($authUser)
         {
