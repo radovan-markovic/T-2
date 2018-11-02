@@ -26,7 +26,8 @@
                     </div>
 
                     <h1>
-                        <div class="temperature row justify-content-center mt-4" id="t"></div>
+                        <div class="temperature row justify-content-center mt-4" id="t">
+                        </div> 
                     </h1>
 
                     <div id="12-hours-temp" style="margin-top: 40px">
@@ -43,12 +44,11 @@
                         </table>
                     </div>                          
 
-                    <div class="row justify-content-center mt-4" >
-                        <button class="btn btn-primary float right" id="save_temp" style="display: none;">Save Temperature</button>
-                    </div>
-
-                    <button type="button" onclick="window.location='../Temperature/index'">Button</button>
-                    
+                    <div class="row  row justify-content-center mt-4" >
+                        <button class="btn btn-primary " id="save_temp" style="display: none;">Save Temperature</button>
+                        </div> 
+                        <button class="btn btn-primary float-right" id="show_temperatures" type="button" style="display: none;" onclick="window.location='../temperature/show'">Show saved temperatures</button>
+                                            
                  
             </div>
         </div>
@@ -72,7 +72,8 @@
         $("#check_temp").click(function(){
             $(".temperature").empty(); 
             $(".text").delay(500).show(0);
-            $("#save_temp").delay(800).show(0);          
+            $("#save_temp").delay(800).show(0);  
+            $("#show_temperatures").delay(800).show(0);        
         });
     });
 
@@ -119,9 +120,9 @@
                         $(function() {
                             $.each(response, function(i, item) {
                                 var $thead = $('.temp_hours').append(
-                                    $('<th>').text(item.date_time)
+                                    $('<th>').text(item.time)
                                 );
-                                all_hours.push(item.date_time); 
+                                all_hours.push(item.time); 
                                 var $tr = $('.temp_per_hour').append(
                                     $('<td>').text(item.temperature)
                                 )
@@ -150,10 +151,10 @@
                 dataType: 'JSON',
                 
                 success: function (data) {     
-                    //alert('Temperature saved!');
+                    alert('Temperature saved!');
                 },
                 error: function(){
-                    //alert('Temperature not saved!');
+                    alert('Temperature not saved!');
                 }
             }); 
         });

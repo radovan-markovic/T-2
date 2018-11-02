@@ -80,7 +80,7 @@ class LoginController extends Controller
                 return redirect('/login');
             }
 
-        Auth::login($authUser, true);
+        Auth::login($authUser, false);
         return redirect('/home');
     }
 
