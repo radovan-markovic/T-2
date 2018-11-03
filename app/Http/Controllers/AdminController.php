@@ -64,5 +64,17 @@ class AdminController extends Controller
 
         return redirect('/admin');
     }
+
+    public function showUserSavedData($user_id)
+    {
+        $temps = \DB::table('temperatures')
+            ->join('cities', 'temperatures.city_code', '=', 'cities.city_code')
+            ->select('temperatures.*', 'cities.name')
+            ->where('user_id', $user_id)
+            ->orderBy('cities.name', 'asc')
+            ->get();
+
+            return view('admin_users_data', compact('temps'));
+    }
     
 }

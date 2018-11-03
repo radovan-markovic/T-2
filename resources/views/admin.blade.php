@@ -3,9 +3,9 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10">
         <h1>Admin Panel</h1>
-
+       
          <table class="table">
             <thead>
                 <tr>
@@ -22,7 +22,13 @@
                     <td> {{$user->id}} </td>
                     <td> {{$user->name}} </td>
                     <td> {{$user->email}} </td>
-                    
+                    <td>
+                    {!! Form::open(array('method' => 'get', 'action' => ['AdminController@showUserSavedData', $user->id])) !!}
+                    <div>
+                            {!! Form::submit('Show saved user data', ['class' => 'btn btn-primary']) !!}
+                            </div>
+                        {!! Form::close() !!}
+                    </td>
                     <td>
                     @if ($user->active_user == 1)
                         {!! Form::open(array('method' => 'patch', 'action' => ['AdminController@activateUser', $user->id])) !!}

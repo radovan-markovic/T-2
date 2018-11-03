@@ -55,7 +55,7 @@ class TemperatureController extends Controller
      */
     public function getAllTemperatures(Request $request){
          
-      /* $jsonurl = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/".$request['city_code']."?apikey=apikey=cAzrpFM0nd2RWIj9tjxpdvarhb3X5452";
+      $jsonurl = "http://dataservice.accuweather.com/forecasts/v1/hourly/12hour/".$request['city_code']."?apikey=aO8HXPEzm9q865JX7CZ80C66IIGGUjj9";
         $json = file_get_contents($jsonurl);
         $weather = json_decode($json);
 
@@ -64,32 +64,7 @@ class TemperatureController extends Controller
             $temperatures[$key]['time'] = substr($weather[$key]->DateTime, 11, 5);
             $temperatures[$key]['temperature'] = $this->fahrenheitToCelsius($weather[$key]->Temperature->Value);
 
-        }*/
-
-        $temperatures[0]['time'] = '07:00';
-        $temperatures[0]['temperature'] = '10 C';
-        $temperatures[1]['time'] = '08:00';
-        $temperatures[1]['temperature'] = '15 C';
-        $temperatures[2]['time'] = '09:00';
-        $temperatures[2]['temperature'] = '16 C';
-        $temperatures[3]['time'] = '10:00';
-        $temperatures[3]['temperature'] = '19 C';
-        $temperatures[4]['time'] = '11:00';
-        $temperatures[4]['temperature'] = '20 C';
-        $temperatures[5]['time'] = '12:00';
-        $temperatures[5]['temperature'] = '19 C';
-        $temperatures[6]['time'] = '13:00';
-        $temperatures[6]['temperature'] = '23 C';
-        $temperatures[7]['time'] = '14:00';
-        $temperatures[7]['temperature'] = '24 C';
-        $temperatures[8]['time'] = '15:00';
-        $temperatures[8]['temperature'] = '23 C';
-        $temperatures[9]['time'] = '16:00';
-        $temperatures[9]['temperature'] = '23 C';
-        $temperatures[10]['time'] = '17:00';
-        $temperatures[10]['temperature'] = '20 C';
-        $temperatures[11]['time'] = '18:00';
-        $temperatures[11]['temperature'] = '10 C';
+        }
 
         $response = array(
             'status' => 'success',
@@ -141,7 +116,6 @@ class TemperatureController extends Controller
         foreach($request['all_temp'] as $key => $value)
         {
            $temp_final[] = (int)trim(substr($request['all_temp'][$key], 0 ,2));
-           //print_r($tee);die();
         }
     
         $temp->city_code = (int)$request['city_code'];
@@ -178,91 +152,168 @@ class TemperatureController extends Controller
         return view('find_temperature', compact('cities'));
      }
 
-     public function findTemperature()
+     public function findTemperature(Request $request)
      {
+        $user= Auth::user();
+
          //napravi provjeru da se vrati temp veca od 0 i manja od 12 sati
+         $date_time_from = $request['from_date'] . ' ' . $request['time_from'];
+         $date_time_to = $request['to_date'] . ' ' . $request['time_to'];
+         $date_time_from = strtotime($date_time_from);
+         $date_time_to = strtotime($date_time_to);
+         $date_time_from = gmdate("Y-m-d H:i:s", $date_time_from);
+         $date_time_to = gmdate("Y-m-d H:i:s", $date_time_to);
 
-        $temp = \DB::table('temperatures')
-                ->select('current_temperature', 'temp_first', 'temp_second', 'temp_third', 'temp_fourth', 'temp_fifth', 'temp_sixth', 'temp_seventh', 
-                'temp_eighth', 'temp_ninth', 'temp_tenth', 'temp_eleventh', 'temp_twelfth', 'start_time', 'end_time')
-                ->where("user_id", 2)
-                ->where("city_code", 297396)
-                ->where('start_time', '>=', '2018-11-02 13:01:14')
-                ->where('end_time', '<=', '2018-11-03 05:11:28')
-                ->get();
-                
+        //check if time date time difference is negative between date time inputs
+        $new_date_time = strtotime($date_time_to) - strtotime($date_time_from);
+        $input_date_time_diff = floor($new_date_time / 3600);
+        
 
-                $temperatures_to_show = [$temp[0]->current_temperature, $temp[0]->temp_first ,$temp[0]->temp_second, $temp[0]->temp_third, $temp[0]->temp_fourth,
-                        $temp[0]->temp_fifth, $temp[0]->temp_sixth, $temp[0]->temp_seventh, $temp[0]->temp_eighth, $temp[0]->temp_ninth, 
-                        $temp[0]->temp_tenth, $temp[0]->temp_eleventh, $temp[0]->temp_twelfth
-                    ];
+        if ($input_date_time_diff < 0) {
 
-                if (count($temp) == 1)
-                {  
-                    $response = array(
-                        'status' => 'success'
-                    );
-                    
-                    return response()->json($response);
-                }
+            $response = array(
+                'status' => 'success',
+                'results' => 'No results'
+            );
 
-                else {
-                    //check for new added temperatures 
-                    $hours_diff = [];
+            return response()->json($response);
+        }
 
-                    for ($i = 0, $j=1; $j<count($temp); $i++, $j++)
-                    {
-                        $delta_time = strtotime($temp[$j]->end_time) - strtotime($temp[$i]->end_time);
-                        $hours = floor($delta_time / 3600);
-                        $hours_diff[] = $hours;
+        if ($input_date_time_diff >= 0 && $input_date_time_diff < 12){
+
+            $temp = \DB::table('temperatures')
+                    ->select('current_temperature', 'temp_first', 'temp_second', 'temp_third', 'temp_fourth', 'temp_fifth', 'temp_sixth', 'temp_seventh', 
+                    'temp_eighth', 'temp_ninth', 'temp_tenth', 'temp_eleventh', 'temp_twelfth', 'start_time', 'end_time')
+                    ->where("user_id", $user->id)
+                    ->where("city_code", $request['city_code'])
+                    ->where('start_time', '>=', $date_time_from)
+                    ->first();
+                   
+                    if (!isset($temp))
+                    {  
+                        $response = array(
+                            'status' => 'success',
+                            'results' => 'No results'
+                        );
                         
+                        return response()->json($response);
+                    }  
+                    
+            $temperatures_to_show = [$temp->current_temperature, $temp->temp_first ,$temp->temp_second, $temp->temp_third, $temp->temp_fourth,
+            $temp->temp_fifth, $temp->temp_sixth, $temp->temp_seventh, $temp->temp_eighth, $temp->temp_ninth, 
+            $temp->temp_tenth, $temp->temp_eleventh, $temp->temp_twelfth
+            ];
+            
+            $temperatures_to_show = array_slice($temperatures_to_show, 0, $input_date_time_diff+1);
+            
+            $response = array(
+                'status' => 'success',
+                'temperatures' => $temperatures_to_show,
+                'results' => 'Temperatures from '. date_format(date_create($request['from_date']),"d.m.Y.") .' '
+                .$request['time_from']. ' to ' .date_format(date_create($request['to_date']),"d.m.Y.").' '.$request['time_to']
+
+            );
+
+            return response()->json($response);
+        }
+        
+        else{
+            
+            $temp = \DB::table('temperatures')
+                    ->select('current_temperature', 'temp_first', 'temp_second', 'temp_third', 'temp_fourth', 'temp_fifth', 'temp_sixth', 'temp_seventh', 
+                    'temp_eighth', 'temp_ninth', 'temp_tenth', 'temp_eleventh', 'temp_twelfth', 'start_time', 'end_time')
+                    ->where("user_id", $user->id)
+                    ->where("city_code", $request['city_code'])
+                    ->where('start_time', '>=', $date_time_from)
+                    ->where('end_time', '<=', $date_time_to)
+                    ->get();
+
+                    if (count($temp) == 0)
+                    {  
+                        $response = array(
+                            'status' => 'success',
+                            'results' => 'No results'
+                        );
+                        
+                        return response()->json($response);
+                    }  
+                    
+                    $temperatures_to_show = [$temp[0]->current_temperature, $temp[0]->temp_first ,$temp[0]->temp_second, $temp[0]->temp_third, $temp[0]->temp_fourth,
+                            $temp[0]->temp_fifth, $temp[0]->temp_sixth, $temp[0]->temp_seventh, $temp[0]->temp_eighth, $temp[0]->temp_ninth, 
+                            $temp[0]->temp_tenth, $temp[0]->temp_eleventh, $temp[0]->temp_twelfth
+                    ];           
+                    
+                    if (count($temp) == 1)
+                    {  
+                        $response = array(
+                            'status' => 'success',
+                            'temperatures' => $temperatures_to_show,
+                            'results' => 'Temperatures from '. date_format(date_create($request['from_date']),"d.m.Y.") .' '
+                            .$request['time_from']. ' to ' .date_format(date_create($request['to_date']),"d.m.Y.").' '.$request['time_to']
+                        );
+                        
+                        return response()->json($response);
                     }
+                    
+                    else { 
+                        //check for new added temperatures 
+                        $hours_diff = [];
 
-                    $all_zero = true;
-
-                    foreach($hours_diff as $value)
-                    if($value != 0)
-                    {
-                        $all_zero = false;
-                        break;
-                    }
-
-                    //separate new temperatures and add them to $temperatures_to_show array
-                     if (!empty($hours_diff && $all_zero == false)) {
-
-                        $temp_array = [];
-                        $temp_array_final = [];
-
-                        for ($i = 1; $i<count($temp); $i++)
+                        for ($i = 0, $j=1; $j<count($temp); $i++, $j++)
                         {
-                            $temp_array[$i] = [$temp[$i]->temp_first ,$temp[$i]->temp_second, $temp[$i]->temp_third, $temp[$i]->temp_fourth,
-                            $temp[$i]->temp_fifth, $temp[$i]->temp_sixth, $temp[$i]->temp_seventh, $temp[$i]->temp_eighth, $temp[$i]->temp_ninth, 
-                            $temp[$i]->temp_tenth, $temp[$i]->temp_eleventh, $temp[$i]->temp_twelfth];
+                            $delta_time = strtotime($temp[$j]->end_time) - strtotime($temp[$i]->end_time);
+                            $hours = floor($delta_time / 3600);
+                            $hours_diff[] = $hours;
+                            
+                        }
+
+                        $all_zero = true;
+
+                        foreach($hours_diff as $value)
+                        if($value != 0)
+                        {
+                            $all_zero = false;
+                            break;
+                        }
+
+                        //separate new temperatures and add them to $temperatures_to_show array
+                        if (!empty($hours_diff && $all_zero == false)) {
+
+                            $temp_array = [];
+                            $temp_array_final = [];
+
+                            for ($i = 1; $i<count($temp); $i++)
+                            {
+                                $temp_array[$i] = [$temp[$i]->temp_first ,$temp[$i]->temp_second, $temp[$i]->temp_third, $temp[$i]->temp_fourth,
+                                $temp[$i]->temp_fifth, $temp[$i]->temp_sixth, $temp[$i]->temp_seventh, $temp[$i]->temp_eighth, $temp[$i]->temp_ninth, 
+                                $temp[$i]->temp_tenth, $temp[$i]->temp_eleventh, $temp[$i]->temp_twelfth];
+                            }
+                            
+                            //merge new temperatures with exsistin temperatures
+                            for ($i = 0; $i<count($hours_diff); $i++)
+                            {                    
+                                $finalArray = array_slice($temp_array[$i+1], 12-$hours_diff[$i], 11);
+                                $temperatures_to_show = array_merge($temperatures_to_show, $finalArray);
+                                
+                                if($i==12){
+                                    break;
+                                }
+
+                                unset($finalArray);                      
+                            }   
+                    
                         }
                         
-                        //merge new temperatures with exsistin temperatures
-                        for ($i = 0; $i<count($hours_diff); $i++)
-                        {                    
-                            $finalArray = array_slice($temp_array[$i+1], 12-$hours_diff[$i], 11);
-                            $temperatures_to_show = array_merge($temperatures_to_show, $finalArray);
-                            
-                            if($i==12){
-                                break;
-                            }
+                        $response = array(
+                            'status' => 'success',
+                            'temperatures' => $temperatures_to_show,
+                            'results' => 'Temperatures from '. date_format(date_create($request['from_date']),"d.m.Y.") .' '
+                            .$request['time_from']. ' to ' .date_format(date_create($request['to_date']),"d.m.Y.").' '.$request['time_to']
+                        );
+                        
+                        return response()->json($response);
+                    }
 
-                            unset($finalArray);                      
-                        }   
-                   
-                     }
-                     
-                     print_r($temperatures_to_show);die();
-                     $response = array(
-                        'status' => 'success'
-                    );
-                    
-                    return response()->json($response);
-                }
-
-                
+            }     
      }
 }

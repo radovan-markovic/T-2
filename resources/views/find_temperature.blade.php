@@ -4,7 +4,8 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <h3><p class=".text-dark row justify-content-center">Search for saved temperatures</p></h3>
+        <button class="btn btn-primary float-left"  type="button"onclick="goBack()">Back</button>
+            <h3><p class=".text-dark row justify-content-center">Search for saved temperatures</p></h3>       
             <div class="mt-4">
                 
                 <select  name="cities" id="get_city_code" style="width: auto;">
@@ -14,7 +15,7 @@
                 </select>
                 <label for="from" style="margin-left:40px">From</label>
                 <input id="from_date"  required class="datepicker-input" type="date" data-date-format="dd.mm.yyyy" style="width: auto;" required=''/>
-                <select id="select1">
+                <select id="time_from">
                     <option value="00:00">00:00</option>
                     <option value="01:00">1:00</option>
                     <option value="02:00">2:00</option>
@@ -28,21 +29,21 @@
                     <option value="10:00">10:00</option>
                     <option value="11:00">11:00</option>
                     <option value="12:00">12:00</option>
-                    <option value="13:00">1:00</option>
-                    <option value="14:00">2:00</option>
-                    <option value="15:00">3:00</option>
-                    <option value="16:00">4:00</option>
-                    <option value="17:00">5:00</option>
-                    <option value="18:00">6:00</option>
-                    <option value="19:00">7:00</option>
-                    <option value="20:00">8:00</option>
-                    <option value="21:00">9:00</option>
-                    <option value="22:00">10:00</option>
-                    <option value="23:00">11:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                    <option value="19:00">19:00</option>
+                    <option value="20:00">20:00</option>
+                    <option value="21:00">21:00</option>
+                    <option value="22:00">22:00</option>
+                    <option value="23:00">23:00</option>
                 </select>
                 <label for="to" style="margin-left:40px">To</label>
                 <input id="to_date" required class="datepicker-input" type="date" data-date-format="dd.mm.yyyy" style="width: auto;" required='' />
-                <select id="select2">
+                <select id="time_to">
                     <option value="00:00">00:00</option>
                     <option value="01:00">1:00</option>
                     <option value="02:00">2:00</option>
@@ -56,23 +57,35 @@
                     <option value="10:00">10:00</option>
                     <option value="11:00">11:00</option>
                     <option value="12:00">12:00</option>
-                    <option value="13:00">1:00</option>
-                    <option value="14:00">2:00</option>
-                    <option value="15:00">3:00</option>
-                    <option value="16:00">4:00</option>
-                    <option value="17:00">5:00</option>
-                    <option value="18:00">6:00</option>
-                    <option value="19:00">7:00</option>
-                    <option value="20:00">8:00</option>
-                    <option value="21:00">9:00</option>
-                    <option value="22:00">10:00</option>
-                    <option value="23:00">11:00</option>
+                    <option value="13:00">13:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:00">17:00</option>
+                    <option value="18:00">18:00</option>
+                    <option value="19:00">19:00</option>
+                    <option value="20:00">20:00</option>
+                    <option value="21:00">21:00</option>
+                    <option value="22:00">22:00</option>
+                    <option value="23:00">23:00</option>
                 </select>
-                <button class="button btn btn-primary" style="margin-left:40px" >Find</button>
+                <button id="find_button" class="button btn btn-primary" style="margin-left:40px" >Find</button>
 
                 </div>
 
-                
+                <h3>
+                    <div class="results float-left row justify-content-center mt-4" id="t">
+                    </div> 
+                </h3>
+
+                <table id ="finded_temp" class="table table-striped">
+                            <thead > 
+                            </thead>
+                            <tbody>
+                                <tr class="temps_per_hour">
+                                <tr>
+                            </tbody>
+                </table>
                 
         </div>
                
@@ -92,6 +105,60 @@ $(document).ready(function(){
         }
     });
 });
+
+
+function goBack() {
+    window.history.back();
+}
+
+var all_results;
+
+$(document).ready(function(){
+        $("#find_button").click(function(){
+            $(".results").empty(); 
+                  
+        });
+    });
+
+$(document).ready(function(){
+        var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
+        $("#find_button").click(function(){
+           
+            $.ajax({ 
+                url: '/temperature/findTemperature',
+                type: 'POST',
+                data: {
+                    _token: CSRF_TOKEN,  
+                    city_code: $('#get_city_code').val(),
+                    from_date: $('#from_date').val(),
+                    time_from: $('#time_from').val(),
+                    to_date: $('#to_date').val(),
+                    time_to: $('#time_to').val()
+                    
+                },
+                dataType: 'JSON',
+                success: callbackResults 
+            }); 
+        });
+   }); 
+
+   function callbackResults(data){
+         
+        $(".temps_per_hour").empty(); 
+        all_results = data;         
+        $(".results").append(data.results); 
+
+        $(function() {
+                $.each(data.temperatures, function(i, item) {
+                    console.log(item);
+                     
+                    var $tr = $('.temps_per_hour').append(
+                        $('<td>').text(item)
+                    )
+                    
+                });
+            });             
+   }
 
 
 </script>

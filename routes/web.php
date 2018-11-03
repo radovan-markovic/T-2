@@ -34,6 +34,7 @@ Route::get('auth/{provider}/callback', 'Auth\LoginController@handleProviderCallb
 //Admin routes
 Route::get('/admin', 'AdminController@index')->name('admin');
 Route::patch('/admin/{admin}/activateUser', 'AdminController@activateUser')->name('admin.activate');
+Route::get('/admin/{user}/showUserSavedData', 'AdminController@showUserSavedData')->name('admin.show_uer_data');
 Route::resource('admin', 'AdminController');
 
 //User routes
@@ -44,6 +45,7 @@ Route::resource('home', 'HomeController');
 Route::post('/temperature/getAllTemperatures', 'TemperatureController@getAllTemperatures')->name('temperature.all_temperatures');
 Route::post('/temperature/getTemperature', 'TemperatureController@getTemperature')->name('temperature.current_temp');
 Route::post('/temperature/saveTemperature', 'TemperatureController@saveTemperature')->name('temperature.save_temp');
+Route::post('/temperature/findTemperature', 'TemperatureController@findTemperature')->name('temperature.find_temp');
 Route::resource('temperature', 'TemperatureController');
 
 

@@ -45,7 +45,7 @@
                     </div>                          
 
                     <div class="row  row justify-content-center mt-4" >
-                        <button class="btn btn-primary " id="save_temp" style="display: none;">Save Temperature</button>
+                        <button class="btn btn-primary " id="save_temp" style="display: none;">Save Temperatures</button>
                         </div> 
                         <button class="btn btn-primary float-right" id="show_temperatures" type="button" style="display: none;" onclick="window.location='../temperature/show'">Show saved temperatures</button>
                                             
@@ -114,21 +114,21 @@
    function callbackAllTemperatures(data){
 
        response = data.all_temp;
-                    $(".temp_hours").empty();
-                    $(".temp_per_hour").empty();
+        $(".temp_hours").empty();
+        $(".temp_per_hour").empty();
 
-                        $(function() {
-                            $.each(response, function(i, item) {
-                                var $thead = $('.temp_hours').append(
-                                    $('<th>').text(item.time)
-                                );
-                                all_hours.push(item.time); 
-                                var $tr = $('.temp_per_hour').append(
-                                    $('<td>').text(item.temperature)
-                                )
-                                all_temperatures.push(item.temperature);
-                            });
-                        });
+            $(function() {
+                $.each(response, function(i, item) {
+                    var $thead = $('.temp_hours').append(
+                        $('<th>').text(item.time)
+                    );
+                    all_hours.push(item.time); 
+                    var $tr = $('.temp_per_hour').append(
+                        $('<td>').text(item.temperature)
+                    )
+                    all_temperatures.push(item.temperature);
+                });
+            });
         
    } 
 
