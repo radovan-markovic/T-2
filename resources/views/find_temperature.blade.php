@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-10">
@@ -73,10 +74,10 @@
 
                 </div>
 
-                <h3>
-                    <div class="results float-left row justify-content-center mt-4" id="t">
-                    </div> 
-                </h3>
+             
+                <div class="results float-left row justify-content-center mt-4" id="t">
+                </div> 
+               
 
                 <table id ="finded_temp" class="table table-striped">
                             <thead > 
@@ -85,14 +86,21 @@
                                 <tr class="temps_per_hour">
                                 <tr>
                             </tbody>
-                </table>
+                </table>     
                 
-        </div>
+            </div>
+
+            <div class="mt-4 row justify-content-center" id="chart_div" style="width: 900px; height: 500px"></div>
                
     </div>
 </div>
-
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+ <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+ 
+ 
+   
 
 <script>
 $(document).ready(function(){
@@ -114,16 +122,14 @@ function goBack() {
 var all_results;
 
 $(document).ready(function(){
-        $("#find_button").click(function(){
-            $(".results").empty(); 
-                  
+        $("#find_button").click(function(){  
+        $(".results").empty();                 
         });
     });
 
 $(document).ready(function(){
         var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
         $("#find_button").click(function(){
-           
             $.ajax({ 
                 url: '/temperature/findTemperature',
                 type: 'POST',
@@ -144,20 +150,75 @@ $(document).ready(function(){
 
    function callbackResults(data){
          
-        $(".temps_per_hour").empty(); 
+        $(".temps_per_hour").empty();
+        $("#chart_div").empty();
         all_results = data;         
         $(".results").append(data.results); 
 
         $(function() {
                 $.each(data.temperatures, function(i, item) {
-                    console.log(item);
                      
                     var $tr = $('.temps_per_hour').append(
                         $('<td>').text(item)
-                    )
-                    
+                    )               
                 });
-            });             
+            });
+
+            // Load google charts
+            google.charts.load('current', {'packages':['line', 'corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+
+                var chartDiv = document.getElementById('chart_div');
+
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', "Hours");
+                data.addColumn('number', "Temperature");
+
+                if (all_results.temperatures !== undefined){
+                    
+                    all_results.temperatures.forEach(function(element) {
+                        data.addRows([['',  element]]);
+                    });
+
+                    var materialOptions = {
+                        chart: {
+                        title: 'Temperatures per hours:'
+                        },
+                        width: 800,
+                        height: 500,
+                        series: {
+                        // Gives each series an axis name that matches the Y-axis below.
+                        0: {axis: 'Temps'}
+                        },
+                        axes: {
+                        // Adds labels to each axis; they don't have to match the axis names.
+                        y: {
+                            Temps: {label: 'Temps (Celsius)'}
+                        }
+                        }
+                    };
+
+                    function drawMaterialChart() {
+                        var materialChart = new google.charts.Line(chartDiv);
+                        materialChart.draw(data, materialOptions);
+                    }
+
+                    function drawClassicChart() {
+                        var classicChart = new google.visualization.LineChart(chartDiv);
+                        classicChart.draw(data, classicOptions);
+                    }
+
+                    drawMaterialChart();
+                    
+                }else{
+
+                  
+                }      
+
+            }         
+                        
    }
 
 

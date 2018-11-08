@@ -164,6 +164,19 @@ class TemperatureController extends Controller
          $date_time_from = gmdate("Y-m-d H:i:s", $date_time_from);
          $date_time_to = gmdate("Y-m-d H:i:s", $date_time_to);
 
+         $start_time = \DB::table('temperatures')
+         ->select('start_time')
+         ->where("user_id", $user->id)
+         ->where("city_code", $request['city_code'])
+         ->where('start_time', '>=', $date_time_from)
+         ->first();
+
+         if (!empty($start_time->start_time))
+         {
+             $start_time = date("Y-m-d H:i:s", strtotime($start_time->start_time)-3600);
+             $date_time_from = $start_time;
+         } 
+
         //check if time date time difference is negative between date time inputs
         $new_date_time = strtotime($date_time_to) - strtotime($date_time_from);
         $input_date_time_diff = floor($new_date_time / 3600);
@@ -187,6 +200,7 @@ class TemperatureController extends Controller
                     ->where("user_id", $user->id)
                     ->where("city_code", $request['city_code'])
                     ->where('start_time', '>=', $date_time_from)
+                    ->orderBy('id', 'desc')
                     ->first();
                    
                     if (!isset($temp))
