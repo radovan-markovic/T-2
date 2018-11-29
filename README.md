@@ -1,4 +1,4 @@
 # T-2
-Project for T-2 company
+Laravel project (5.7 version).
 
-Checks temperature from API https://www.accuweather.com.
+Checks the temperature from API https://www.accuweather.com.
